@@ -1,0 +1,2340 @@
+/* 未知タイプのタイプラベル: 文字が背景に埋もれないよう黒背景＋白文字 */
+.entry-type-label--unknown {
+  background-color: #000;
+  color: #fff;
+}
+
+/* 右上/簡易バーに一本化: フォーム内の生成ボタンは撤去済み */
+:root {
+  color-scheme: light;
+  --bg-gradient-start: #f9f5ff;
+  --bg-gradient-end: #fef9f3;
+  --panel-bg: rgba(255, 255, 255, 0.86);
+  --panel-border: rgba(120, 94, 168, 0.18);
+  --text-color: #342c44;
+  --muted-text: #6c5a87;
+  --accent: #7c5cdb;
+  --accent-strong: #5a3ec8;
+  --accent-light: rgba(124, 92, 219, 0.14);
+  --primary: #ff8a65;
+  --primary-strong: #ff7043;
+  --primary-light: rgba(255, 138, 101, 0.18);
+  --danger: #e35063;
+  --danger-light: rgba(227, 80, 99, 0.16);
+  --info: #4a90e2;
+  --info-strong: #357abd;
+  --info-light: rgba(74, 144, 226, 0.18);
+  --shadow-soft: 0 24px 48px rgba(52, 44, 68, 0.08);
+  --shadow-subtle: 0 10px 24px rgba(52, 44, 68, 0.05);
+  --rounded-lg: 28px;
+  --rounded-md: 18px;
+  --rounded-sm: 12px;
+  --transition: 160ms ease;
+  font-family: "Noto Sans JP", "Segoe UI", sans-serif;
+}
+
+/* ダークテーマ変数 */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-gradient-start: #15121c;
+  --bg-gradient-end: #1b1624;
+  --panel-bg: rgba(24, 20, 32, 0.82);
+  --panel-border: rgba(140, 120, 200, 0.22);
+  --text-color: #e9e7ef;
+  --muted-text: #b6a9cd;
+  --accent: #9b86f0;
+  --accent-strong: #7d64e6;
+  --accent-light: rgba(155, 134, 240, 0.18);
+  --primary: #ff9e7d;
+  --primary-strong: #ff7f50;
+  --primary-light: rgba(255, 158, 125, 0.18);
+  --danger: #ff6b81;
+  --danger-light: rgba(255, 107, 129, 0.18);
+  --info: #64a8ff;
+  --info-strong: #4b8fe6;
+  --info-light: rgba(100, 168, 255, 0.18);
+  --shadow-soft: 0 24px 48px rgba(0, 0, 0, 0.55);
+  --shadow-subtle: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.25), transparent 48%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.15), transparent 55%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ダーク: 背景ハイライトを少し暗い霧に */
+[data-theme="dark"] body::before {
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.06), transparent 48%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05), transparent 55%);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-shell {
+  width: min(1180px, 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(18px);
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px clamp(14px, 3vw, 28px) 10px;
+}
+
+.branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-logo {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.12));
+}
+
+.app-title {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  letter-spacing: 0.03em;
+}
+
+.app-subtitle {
+  margin: 2px 0 0;
+  color: var(--muted-text);
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.app-nav {
+  display: flex;
+  gap: 8px;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-subtle);
+}
+
+[data-theme="dark"] .app-nav {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .nav-button:hover,
+[data-theme="dark"] .nav-button:focus-visible {
+  background: rgba(155, 134, 240, 0.16);
+}
+[data-theme="dark"] .nav-button[aria-current="true"],
+[data-theme="dark"] .nav-button.active {
+  color: #fff;
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
+}
+
+.nav-button {
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: var(--rounded-lg);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--muted-text);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-button:hover,
+.nav-button:focus-visible {
+  background: rgba(124, 92, 219, 0.12);
+  outline: none;
+  color: var(--accent-strong);
+}
+
+.nav-button[aria-current="true"],
+.nav-button.active {
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  color: white;
+  box-shadow: 0 12px 20px rgba(92, 64, 173, 0.25);
+}
+
+.app-main {
+  flex: 1;
+  display: grid;
+  position: relative;
+}
+
+.view {
+  display: none;
+  grid-area: 1 / 1 / 2 / 2;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.view.active {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.view-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 clamp(18px, 4vw, 42px) 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  scrollbar-gutter: stable both-edges;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+#view-main .view-scroll {
+  overflow: hidden;
+  padding-bottom: 0;
+  gap: 18px;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border-radius: var(--rounded-lg);
+  padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-soft);
+}
+
+.command-panel {
+  padding: 16px clamp(18px, 3vw, 24px);
+}
+
+.command-panel__body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.command-panel__body h2 {
+  margin: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.command-panel .command-input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+}
+
+/* 司令入力行のレイアウト（入力＋履歴ボタン） */
+.command-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0; /* 長文でもはみ出さない */
+}
+
+.command-input-row .command-input {
+  flex: 1 1 auto;
+  min-width: 0; /* 収まり優先 */
+}
+
+#command-history-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+button.small {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.command-panel .autosave-indicator {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+#view-main .story-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#view-main .story-panel .panel-header {
+  margin-bottom: 12px;
+}
+
+.panel-header h2 {
+  margin: 0 0 4px;
+}
+
+.panel-description {
+  margin: 0;
+  color: var(--muted-text);
+  font-size: 0.95rem;
+}
+
+.autosave-indicator {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted-text);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(106, 90, 205, 0.12);
+  transition: var(--transition);
+}
+
+.autosave-indicator[data-status="saving"] {
+  background: rgba(255, 138, 101, 0.15);
+  color: var(--primary-strong);
+}
+
+.command-input,
+.worldview-input,
+textarea,
+input,
+select {
+  width: 100%;
+  font: inherit;
+  border-radius: var(--rounded-sm);
+  border: 1px solid rgba(124, 92, 219, 0.22);
+  padding: 12px 16px;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: var(--transition);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.worldview-input {
+  min-height: 480px;
+}
+
+textarea:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(124, 92, 219, 0.28);
+  border-color: var(--accent);
+}
+
+.select-label,
+.text-label,
+.range-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+.range-label input[type="range"] {
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+/* 設定: 役割設定の履歴ボタン行 */
+.roleprompt-input-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none; /* 子要素以外のクリックを無効化 */
+}
+.roleprompt-input-row > * {
+  pointer-events: auto; /* ボタン自身はクリック可能 */
+}
+
+.entry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.entry-type-fieldset {
+  border: none;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  padding: 0;
+}
+
+.entry-type-fieldset legend {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.character-face {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(124, 92, 219, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px dashed rgba(124, 92, 219, 0.22);
+}
+
+.character-face:empty {
+  display: none;
+}
+
+.character-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.optional {
+  display: none;
+}
+
+.optional.show {
+  display: flex;
+}
+
+.entry-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.checkbox-label input {
+  width: auto;
+  accent-color: var(--accent);
+}
+
+.entry-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  font: inherit;
+  border-radius: 999px;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+button.primary {
+  background: linear-gradient(120deg, var(--primary), var(--primary-strong));
+  color: white;
+  box-shadow: 0 12px 24px rgba(255, 138, 101, 0.22);
+}
+
+button.accent {
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  color: white;
+  box-shadow: 0 12px 24px rgba(124, 92, 219, 0.22);
+}
+
+button.info {
+  background: linear-gradient(120deg, var(--info), var(--info-strong));
+  color: white;
+  box-shadow: 0 12px 24px rgba(74, 144, 226, 0.22);
+}
+
+button.info:hover,
+button.info:focus-visible {
+  box-shadow: 0 14px 26px rgba(74, 144, 226, 0.3);
+}
+
+.entry-panel {
+  padding: 12px clamp(18px, 4vw, 42px) 40px;
+}
+
+.app-main[data-story-mode="management"] .entry-panel {
+  display: none;
+}
+
+.entry-panel__surface {
+  background: var(--panel-bg);
+  border-radius: var(--rounded-lg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-soft);
+  padding: clamp(16px, 3vw, 24px);
+}
+
+/* デスクトップ用: エントリーパネル右上のツールバー */
+.desktop-entry-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* モバイルでは上部ツールバーは非表示（モバイル用簡易バーを使用） */
+@media (max-width: 768px) {
+  .desktop-entry-toolbar {
+    display: none;
+  }
+}
+
+/* ダーク: フォーム要素の背景コントラスト調整 */
+[data-theme="dark"] .command-input,
+[data-theme="dark"] .worldview-input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] input,
+[data-theme="dark"] select {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(155, 134, 240, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+[data-theme="dark"] textarea:focus-visible,
+[data-theme="dark"] input:focus-visible,
+[data-theme="dark"] select:focus-visible {
+  outline: 3px solid rgba(155, 134, 240, 0.28);
+}
+
+/* モバイル用エントリー折りたたみトグル */
+.mobile-entry-toggle {
+  display: none;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+  .mobile-entry-toggle {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  /* 中央のキャラクター顔（はみ出し防止） */
+  #mobile-character-face {
+    justify-self: center;
+    width: 40px;
+    height: 40px;
+  }
+  /* 初期状態はフォームを隠してトグルバーのみ表示 */
+  #entry-form {
+    display: none;
+  }
+  /* 展開状態を示すクラスが body に付いたらフォームを表示 */
+  body.mobile-entry-expanded #entry-form {
+    display: block;
+  }
+}
+
+.entry-form--compact {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.entry-form--compact .select-label,
+.entry-form--compact .text-label {
+  margin-bottom: 0;
+}
+
+.entry-form--compact .entry-type-fieldset {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 280px;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.entry-form--compact .select-label {
+  flex: 0 1 200px;
+}
+
+.entry-form--compact .optional.show {
+  display: inline-flex;
+}
+
+.entry-form--compact .character-face {
+  width: 48px;
+  height: 48px;
+}
+
+/* ダイスロール関連のスタイル */
+.dice-roll-section {
+  margin: 16px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(124, 92, 219, 0.15);
+  border-radius: var(--rounded-sm);
+}
+
+[data-theme="dark"] .dice-roll-section {
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(155, 134, 240, 0.22);
+}
+
+.dice-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dice-input-group input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.dice-input-group button {
+  white-space: nowrap;
+}
+
+.dice-result {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: var(--rounded-sm);
+  font-weight: 500;
+  font-family: monospace;
+}
+
+.dice-result.success {
+  background: rgba(74, 144, 226, 0.1);
+  color: var(--info-strong);
+  border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.dice-result.error {
+  background: rgba(227, 80, 99, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(227, 80, 99, 0.2);
+}
+
+.character-action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* Desktop/Default: place 行動追加 (left) then 発言追加 (right), then 生成 */
+.character-action-buttons #add-action-button {
+  order: 1;
+}
+.character-action-buttons #add-dialogue-button {
+  order: 2;
+}
+/* 生成ボタンはフォームから撤去済みのため順序指定は不要 */
+
+.character-action-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* 発言ボタン - 紫色 */
+#add-dialogue-button {
+  background: linear-gradient(120deg, rgba(124, 92, 219, 0.9), rgba(124, 92, 219, 1));
+  color: white;
+  box-shadow: 0 12px 24px rgba(124, 92, 219, 0.3);
+}
+
+#add-dialogue-button:hover,
+#add-dialogue-button:focus-visible {
+  box-shadow: 0 14px 26px rgba(124, 92, 219, 0.4);
+}
+
+/* 行動ボタン - オレンジ色 */
+#add-action-button {
+  background: linear-gradient(120deg, rgba(255, 138, 101, 0.9), rgba(255, 138, 101, 1));
+  color: white;
+  box-shadow: 0 12px 24px rgba(255, 138, 101, 0.3);
+}
+
+#add-action-button:hover,
+#add-action-button:focus-visible {
+  box-shadow: 0 14px 26px rgba(255, 138, 101, 0.4);
+}
+
+/* エントリ追加ボタンの種別別スタイル */
+#add-entry-button.type-narration {
+  background: linear-gradient(120deg, rgba(104, 192, 162, 0.9), rgba(104, 192, 162, 1));
+  color: white;
+  box-shadow: 0 12px 24px rgba(104, 192, 162, 0.3);
+}
+
+#add-entry-button.type-narration:hover,
+#add-entry-button.type-narration:focus-visible {
+  box-shadow: 0 14px 26px rgba(104, 192, 162, 0.4);
+}
+
+#add-entry-button.type-direction {
+  background: linear-gradient(120deg, rgba(255, 196, 80, 0.9), rgba(255, 196, 80, 1));
+  color: white;
+  box-shadow: 0 12px 24px rgba(255, 196, 80, 0.3);
+}
+
+#add-entry-button.type-direction:hover,
+#add-entry-button.type-direction:focus-visible {
+  box-shadow: 0 14px 26px rgba(255, 196, 80, 0.4);
+}
+
+/* ドロップダウンの種別別スタイル */
+#entry-type.type-character {
+  border-left: 4px solid rgba(124, 92, 219, 0.9);
+}
+
+#entry-type.type-narration {
+  border-left: 4px solid rgba(104, 192, 162, 0.9);
+}
+
+#entry-type.type-direction {
+  border-left: 4px solid rgba(255, 196, 80, 0.9);
+}
+
+.character-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.character-action-modal-buttons {
+  margin: 12px 0;
+}
+
+.character-action-modal-buttons button {
+  margin-right: 8px;
+}
+
+.entry-form--compact .entry-text-label {
+  flex: 1 1 320px;
+}
+
+.entry-form--compact textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.entry-actions--compact {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.entry-actions--compact .entry-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+button.secondary {
+  background: rgba(124, 92, 219, 0.08);
+  color: var(--accent-strong);
+}
+
+button.danger {
+  background: linear-gradient(120deg, var(--danger), #c92d52);
+  color: white;
+  box-shadow: 0 12px 24px rgba(227, 80, 99, 0.2);
+}
+
+button:hover,
+button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(52, 44, 68, 0.16);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.story-timeline {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+  overflow-y: auto;
+  overflow-x: hidden; /* 横スクロールを抑止（内側で制御） */
+  padding-right: 8px;
+  scrollbar-gutter: stable both-edges;
+  width: 100%;
+  min-width: 0;
+}
+
+.story-entry {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--rounded-lg);
+  border: 1px solid rgba(124, 92, 219, 0.16);
+  box-shadow: var(--shadow-subtle);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 0; /* 親のflex幅内に収める */
+  max-width: 100%;
+  width: 100%;
+}
+[data-theme="dark"] .story-entry {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(155, 134, 240, 0.22);
+}
+[data-theme="dark"] .story-entry:hover {
+  box-shadow: 0 16px 22px rgba(0, 0, 0, 0.45);
+}
+
+.story-entry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 22px rgba(52, 44, 68, 0.12);
+}
+
+.story-entry[data-kind="dialogue"] {
+  border-left: 6px solid rgba(124, 92, 219, 0.9);
+}
+
+.story-entry[data-kind="action"] {
+  border-left: 6px solid rgba(255, 138, 101, 0.9);
+}
+
+.story-entry[data-kind="narration"] {
+  border-left: 6px solid rgba(104, 192, 162, 0.9);
+}
+
+.story-entry[data-kind="direction"] {
+  border-left: 6px solid rgba(255, 196, 80, 0.9);
+}
+
+.story-entry[data-kind="reject"] {
+  border-left: 6px solid rgba(220, 38, 127, 0.9);
+  background: rgba(220, 38, 127, 0.05);
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--muted-text);
+}
+
+.entry-type-label {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.story-entry[data-kind="dialogue"] .entry-type-label {
+  background: rgba(124, 92, 219, 0.9);
+}
+
+.story-entry[data-kind="action"] .entry-type-label {
+  background: rgba(255, 138, 101, 0.9);
+}
+
+.story-entry[data-kind="narration"] .entry-type-label {
+  background: rgba(104, 192, 162, 0.9);
+}
+
+.story-entry[data-kind="direction"] .entry-type-label {
+  background: rgba(255, 196, 80, 0.9);
+}
+
+.story-entry[data-kind="reject"] .entry-type-label {
+  background: rgba(220, 38, 127, 0.9);
+}
+
+/* JSON エントリのラベル色と左枠 */
+.story-entry[data-kind="json"] {
+  border-left: 6px solid rgba(74, 144, 226, 0.9);
+}
+.story-entry[data-kind="json"] .entry-type-label {
+  background: rgba(74, 144, 226, 0.9);
+}
+
+.entry-character {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(124, 92, 219, 0.1);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* 右側のメタ行のラベル用途に限定するため、ここでの img は使用しない */
+
+.entry-content {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  min-width: 0; /* グリッド/フレックス内でのテキスト省略を有効化 */
+  overflow: hidden; /* 子の長文が外へ溢れないように */
+}
+
+/* --- 新規: エントリーの2カラムレイアウト（左: アバター, 右: 本文） --- */
+.story-entry {
+  grid-template-columns: 72px 1fr;
+  align-items: start;
+}
+
+.story-entry.no-avatar {
+  grid-template-columns: 1fr; /* アバターを表示しない設定時は1カラムに */
+}
+
+.entry-avatar {
+  width: 64px; /* 固定サイズ（必要ならここを変更） */
+  height: 64px;
+  border-radius: 12px; /* または50%で丸。今回は四角の例 */
+  overflow: hidden;
+  background: rgba(124, 92, 219, 0.08);
+  border: 1px solid rgba(124, 92, 219, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 1:1を維持しつつトリミング */
+}
+
+.entry-avatar span {
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.entry-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* JSON エントリの折りたたみ表示 */
+.entry-json-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--info-strong);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 6px 0 8px;
+  list-style: none; /* Safariのマーカー調整 */
+}
+.entry-json-details > summary::-webkit-details-marker { display: none; }
+.entry-json-details > summary::marker { content: ""; }
+.entry-json {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  white-space: pre;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  /* 縦横スクロールを許可 */
+  overflow-x: auto;
+  overflow-y: auto;
+  /* 画面に応じて高さの上限を調整（最大480pxまたは50vh） */
+  max-height: min(480px, 50vh);
+  -webkit-overflow-scrolling: touch; /* モバイルで慣性スクロール */
+}
+
+[data-theme="dark"] .entry-json {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* プレビュー行は一行省略 */
+.entry-json-preview {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted-text);
+}
+
+.reject-warning {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 2px solid #ffc107;
+  border-radius: var(--rounded-sm);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #856404;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+  position: relative;
+}
+
+.reject-warning::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #ffc107;
+  border-radius: 2px 0 0 2px;
+}
+
+.entry-actions-menu {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: var(--rounded-sm);
+  box-shadow: var(--shadow-subtle);
+  border: 1px solid rgba(124, 92, 219, 0.14);
+  padding: 10px;
+  z-index: 100;
+  width: max-content;
+  min-width: 200px;
+}
+[data-theme="dark"] .entry-actions-menu {
+  background: rgba(0, 0, 0, 0.888);
+  border: 1px solid rgba(155, 134, 240, 0.22);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* bodyポータル化されたメニュー（デスクトップ） */
+.entry-actions-menu.is-portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  display: flex;
+  z-index: 2147483647; /* 画面最前面に近い非常に高い値 */
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* タブレット専用（769–1024px）の個別調整は廃止し、768px以下をモバイル扱いに統一 */
+
+/* スマートフォン対応: メニューが画面外に出ないよう調整 */
+@media (max-width: 768px) {
+  .entry-actions-menu {
+    /* モバイルではエントリ内のメニューは表示しない（中央モーダルを使用） */
+    display: none !important;
+  }
+  
+  /* 背景オーバーレイは共通のモーダルを流用するため不要 */
+}
+
+/* メニュー閉じるボタン（スマートフォン用） */
+.entry-actions-menu-close {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .entry-actions-menu-close {
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: var(--muted-text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .entry-actions-menu-close:hover,
+  .entry-actions-menu-close:active {
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-color);
+  }
+}
+
+.story-entry.show-actions {
+  z-index: 50;
+  position: relative;
+}
+
+.story-entry.show-actions .entry-actions-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry-actions-menu button {
+  padding: 8px 12px;
+  background: transparent;
+  border-radius: var(--rounded-sm);
+  color: var(--muted-text);
+  text-align: left;
+  box-shadow: none;
+  white-space: nowrap;
+  min-width: max-content;
+  transition: var(--transition);
+}
+
+.entry-actions-menu button:hover {
+  background: rgba(124, 92, 219, 0.12);
+  color: var(--accent-strong);
+}
+[data-theme="dark"] .entry-actions-menu button:hover {
+  background: rgba(155, 134, 240, 0.2);
+}
+
+/* スマートフォンでのタッチ対応 */
+@media (max-width: 768px) {
+  /* 物語メインビューの左右余白をゼロに */
+  #view-main .view-scroll {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* タイムラインの右側パディングもゼロに */
+  .story-timeline {
+    padding-right: 0;
+  }
+
+  /* エントリボックスの左右余白を詰める */
+  .story-entry {
+    /* テキストが縁にかぶらない程度に数pxだけ余裕を持たせる */
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 0;
+  }
+
+  /* パネルの内側余白はモバイルでは薄くし、角丸もやや鋭く */
+  .panel {
+    padding: 3px !important;
+    border-radius: 8px !important;
+  }
+  .entry-actions-menu button {
+    padding: 12px 16px;
+    font-size: 1rem;
+    min-height: 44px; /* タッチターゲットのMinimum size */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .entry-actions-menu button:active {
+    background: rgba(124, 92, 219, 0.2);
+    transform: scale(0.98);
+  }
+
+  /* モバイルではロゴマークを非表示 */
+  .app-logo {
+    display: none;
+  }
+}
+
+/* モバイル用の中央オーバーレイで使用する調整 */
+body.modal-open {
+  overflow: hidden; /* 背景のスクロールを抑止 */
+}
+
+/* オーバーレイ内のメニュー風ボタン */
+.entry-actions-overlay-button {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--rounded-sm);
+  text-align: left;
+  background: var(--accent-light);
+  color: var(--accent-strong);
+  border: 1px solid var(--panel-border);
+  box-shadow: none;
+}
+.entry-actions-overlay-button + .entry-actions-overlay-button {
+  margin-top: 8px;
+}
+.entry-actions-overlay-button:hover,
+.entry-actions-overlay-button:focus-visible {
+  background: rgba(124, 92, 219, 0.2);
+}
+
+.story-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.story-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.story-tablist {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(124, 92, 219, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(124, 92, 219, 0.18);
+}
+
+.story-tab {
+  background: transparent;
+  color: var(--accent-strong);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  min-width: 120px;
+  box-shadow: none;
+  transform: none;
+}
+
+.story-tab.is-active {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 16px rgba(124, 92, 219, 0.18);
+}
+
+.story-tab:not(.is-active):hover,
+.story-tab:not(.is-active):focus-visible {
+  background: rgba(124, 92, 219, 0.18);
+  box-shadow: none;
+}
+
+.story-view-panels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+  margin-top: 12px;
+}
+
+.story-view {
+  display: none;
+  min-height: 0;
+}
+
+.story-view:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.story-view--timeline {
+  flex: 1;
+}
+
+.story-view--management {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.story-management-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  padding-bottom: 12px;
+}
+
+.management-section {
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: var(--rounded-lg);
+  border: 1px solid rgba(124, 92, 219, 0.16);
+  box-shadow: var(--shadow-subtle);
+  padding: 20px clamp(18px, 3vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+[data-theme="dark"] .management-section {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(155, 134, 240, 0.22);
+}
+
+.management-description {
+  margin: 0;
+  color: var(--muted-text);
+  font-size: 0.92rem;
+}
+
+.management-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.management-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.management-status {
+  min-height: 1.4em;
+  font-size: 0.9rem;
+  color: var(--muted-text);
+}
+
+.management-status[data-variant="success"] {
+  color: var(--primary-strong);
+}
+
+.management-status[data-variant="error"] {
+  color: var(--danger);
+}
+
+.story-stats-list {
+  display: grid;
+  gap: 12px 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 0;
+}
+
+.story-stats-list dt {
+  font-weight: 600;
+  color: var(--muted-text);
+}
+
+.story-stats-list dd {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.character-layout {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 280px 1fr;
+}
+
+.character-list {
+  background: rgba(255, 255, 255, 0.64);
+  border-radius: var(--rounded-lg);
+  border: 1px solid rgba(124, 92, 219, 0.12);
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+[data-theme="dark"] .character-list {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(155, 134, 240, 0.18);
+}
+
+.character-items {
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.character-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--rounded-sm);
+  background: transparent;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition);
+  position: relative; /* 無効バッジの絶対配置に使用 */
+}
+
+.character-item:hover,
+.character-item:focus-visible {
+  background: rgba(124, 92, 219, 0.1);
+  outline: none;
+}
+
+.character-item.active {
+  border-color: rgba(124, 92, 219, 0.4);
+  background: rgba(124, 92, 219, 0.14);
+}
+
+/* 無効キャラクターの表示 */
+.character-item.is-disabled {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+  padding-right: 64px; /* バッジ分のスペースを確保 */
+}
+.badge-disabled {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(180, 180, 180, 0.25);
+  color: #666;
+  border: 1px solid rgba(120, 120, 120, 0.35);
+  vertical-align: middle;
+}
+
+/* リスト右端にバッジを寄せる（レイアウトから外して重ねる） */
+.character-item .badge-disabled {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin-left: 0; /* 右寄せ時は不要 */
+}
+
+.character-avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(124, 92, 219, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.character-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.character-meta {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.character-meta strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.character-meta span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted-text);
+  font-size: 0.9rem;
+}
+
+.character-detail {
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: var(--rounded-lg);
+  border: 1px solid rgba(124, 92, 219, 0.16);
+  padding: 24px;
+  min-height: 420px;
+}
+
+[data-theme="dark"] .character-detail {
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(155, 134, 240, 0.22);
+}
+
+.character-detail.empty-state {
+  min-height: 200px;
+}
+
+.character-empty {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-text);
+  font-weight: 500;
+}
+
+.character-empty[data-state="hidden"] {
+  display: none;
+}
+
+.character-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.character-form[hidden] {
+  display: none !important;
+}
+
+.character-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.character-icon-input {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.icon-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid rgba(124, 92, 219, 0.18);
+  background: rgba(124, 92, 219, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.icon-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-label input {
+  padding: 10px;
+  background: rgba(124, 92, 219, 0.06);
+}
+
+.settings-form {
+  display: grid;
+  gap: 18px;
+  max-width: 520px;
+}
+
+.cost-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.test-result {
+  margin-top: 18px;
+  padding: 16px 20px;
+  border-radius: var(--rounded-sm);
+  background: rgba(124, 92, 219, 0.08);
+  color: var(--muted-text);
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.app-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 18px clamp(18px, 4vw, 42px) 28px;
+  color: var(--muted-text);
+  font-size: 0.9rem;
+}
+
+.footer-stat {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.footer-stat strong {
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+#toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 2000;
+}
+
+/* Floating Action Button: scroll to bottom */
+#fab-scroll-bottom.fab {
+  position: fixed;
+  right: 20px;
+  bottom: 84px; /* フッターとトーストより上に配置 */
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 20px rgba(124, 92, 219, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 1800;
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+}
+
+/* SVGがブラウザによってゼロ幅になるのを防ぐため明示指定 */
+#fab-scroll-bottom.fab svg {
+  width: 24px;
+  height: 24px;
+  display: block; /* inline要素のベースライン影響を除去 */
+  flex: 0 0 auto;
+}
+
+#fab-scroll-bottom.fab:hover,
+#fab-scroll-bottom.fab:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(124, 92, 219, 0.35);
+}
+
+@media (max-width: 768px) {
+  #fab-scroll-bottom.fab {
+    right: 16px;
+    bottom: 88px; /* モバイル入力パネルを避けて少し上に */
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+  #fab-scroll-bottom.fab svg {
+    width: 22px;
+    height: 22px;
+    min-width: 22px; /* 一部環境での収縮防止 */
+    min-height: 22px;
+  }
+}
+
+.toast {
+  background: rgba(36, 30, 45, 0.88);
+  color: white;
+  padding: 12px 16px;
+  border-radius: var(--rounded-sm);
+  max-width: 320px;
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: toast-in 180ms ease forwards;
+}
+
+[data-theme="dark"] .toast {
+  background: rgba(20, 18, 26, 0.92);
+}
+
+.toast[data-variant="success"] {
+  background: rgba(28, 160, 110, 0.9);
+}
+
+.toast[data-variant="error"] {
+  background: rgba(227, 80, 99, 0.92);
+}
+
+@keyframes toast-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 12, 22, 0.72);
+  display: grid;
+  place-items: center;
+  /* モーダルは生成オーバーレイ (z-index: 9999) より前面に配置する */
+  z-index: 10050;
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(3, 2, 6, 0.78);
+}
+
+.modal {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: var(--rounded-lg);
+  padding: 28px;
+  width: min(520px, 90vw);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 16px;
+}
+
+[data-theme="dark"] .modal {
+  background: rgba(20, 18, 26, 0.92);
+}
+
+/* 履歴モーダルは横幅を広めに確保 */
+.modal:has(.history-modal) {
+  width: min(960px, 96vw);
+}
+
+.modal h3 {
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* セッション喪失オーバーレイの本文 */
+.session-lost-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 履歴モーダル（スクロール可能なリスト） */
+.history-modal {
+  display: grid;
+  gap: 12px;
+  max-height: min(60vh, 520px);
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(50vh, 420px);
+  overflow: auto;
+  padding-right: 6px; /* スクロールバー余白 */
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(124, 92, 219, 0.18);
+  border-radius: var(--rounded-sm);
+  padding: 12px;
+}
+
+[data-theme="dark"] .history-item {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(155, 134, 240, 0.22);
+}
+
+.history-item__main {
+  min-width: 0;
+}
+
+.history-text {
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.history-meta {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--muted-text);
+}
+
+.history-item__actions {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+}
+
+/* Entry reminder modal styling - 目立つ色のモーダル */
+.entry-reminder-modal {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 2px solid #f39c12;
+  box-shadow: 0 8px 32px rgba(243, 156, 18, 0.25);
+}
+
+.entry-reminder-modal h3 {
+  color: #d68910;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entry-reminder-modal h3::before {
+  content: "⚠️";
+  font-size: 1.2em;
+}
+
+.entry-reminder-modal p {
+  color: #b7950b;
+  margin: 16px 0;
+}
+
+.entry-reminder-modal button {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.entry-reminder-modal button.primary {
+  background: linear-gradient(120deg, #e67e22, #d35400) !important;
+  color: white !important;
+}
+
+.entry-reminder-modal button.secondary {
+  background: rgba(181, 149, 11, 0.15) !important;
+  color: #b7950b !important;
+  border: 1px solid rgba(181, 149, 11, 0.3);
+}
+
+@media (max-width: 768px) {
+  .character-layout {
+    grid-template-columns: 1fr;
+  }
+  .character-list {
+    max-height: none;
+    /* モバイルでは一覧を先頭に表示 */
+    order: -1;
+  }
+  .character-icon-input {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    justify-content: center;
+    text-align: center;
+  }
+  .branding {
+    flex-direction: column;
+  }
+  .command-panel__body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .command-panel .autosave-indicator {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+  .panel-description {
+    display: none;
+  }
+  /* 入力フォーム内の顔はモバイルでは隠し、簡易バー中央のみ表示 */
+  .entry-form .character-face[data-role="character-face"] {
+    display: none !important;
+  }
+  .entry-timestamp {
+    display: none;
+  }
+  .story-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .story-select {
+    flex: none;
+    min-width: auto;
+  }
+  .entry-form--compact .entry-type-fieldset {
+    flex: none;
+  }
+  .entry-form--compact .select-label {
+    flex: none;
+  }
+  .entry-form--compact .entry-text-label {
+    flex: none;
+  }
+  .entry-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .entry-actions--compact {
+    justify-content: flex-start;
+  }
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .entry-form--compact {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .entry-form--compact .entry-type-fieldset {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 種別 / キャラクター を常に横並びに */
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 8px;
+  }
+  .entry-form--compact .entry-text-label {
+    width: 100%;
+  }
+  .entry-buttons.character-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .entry-buttons.character-action-buttons .character-action-btn {
+    width: 100%;
+    min-width: unset;
+  }
+  /* 生成ボタンはフォームに存在しないため配置指定は不要 */
+  .entry-actions--compact {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .entry-actions--compact .entry-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .story-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .app-footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .app-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .nav-button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 0.88rem;
+  }
+  .entry-actions--compact .entry-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  /* Character action buttons: force two-column grid on mobile */
+  .entry-actions--compact .entry-buttons.character-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .entry-actions--compact .entry-buttons.character-action-buttons .character-action-btn {
+    width: 100%;
+    min-width: unset;
+  }
+  /* Left column = 行動追加, Right column = 発言追加 */
+  .entry-actions--compact .entry-buttons.character-action-buttons #add-action-button {
+    grid-column: 1;
+  }
+  .entry-actions--compact .entry-buttons.character-action-buttons #add-dialogue-button {
+    grid-column: 2;
+  }
+  /* 生成ボタンはフォームに存在しないため配置指定は不要 */
+  .command-panel .command-input {
+    height: 38px;
+  }
+  .app-footer {
+    grid-template-columns: 1fr;
+    display: none; /* モバイルではフッターを非表示 */
+  }
+  /* フォーム内の生成ボタンは撤去済み（簡易バーのボタンを使用） */
+}
+
+/* モバイル: ダークテーマ切替ボタンを右上に小さく固定表示 */
+@media (max-width: 768px) {
+  #theme-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1500; /* トースト(2000)より後ろ、ヘッダーより前面に十分 */
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    min-width: 0; /* nav-buttonの横幅拡張を打ち消し */
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-subtle);
+    text-indent: -9999px; /* テキスト(「テーマ」)は隠す */
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+  #theme-toggle::before {
+    content: "🌓";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 18px;
+    text-indent: 0;
+  }
+  #theme-toggle:focus-visible {
+    outline: 3px solid rgba(124, 92, 219, 0.28);
+  }
+  [data-theme="dark"] #theme-toggle {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(155, 134, 240, 0.22);
+  }
+}
+
+/* 生成中オーバーレイ */
+.generation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.generation-overlay.show {
+  display: flex;
+}
+
+.generation-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--rounded-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  min-width: 280px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(124, 92, 219, 0.2);
+}
+[data-theme="dark"] .generation-content {
+  background: rgba(0, 0, 0, 0.36);
+  border: 1px solid rgba(155, 134, 240, 0.28);
+}
+
+.generation-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(124, 92, 219, 0.2);
+  border-left: 4px solid var(--accent-strong);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+[data-theme="dark"] .generation-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.12);
+  border-left: 4px solid var(--accent-strong);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.generation-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.generation-subtext {
+  font-size: 0.9rem;
+  color: var(--muted-text);
+  text-align: center;
+  margin-top: -8px;
+}
+
+/* Debug console styling */
+.debug-console {
+  margin-top: 32px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+}
+
+.debug-console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(124, 92, 219, 0.08);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.debug-console-header h3 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.debug-console-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.debug-action-btn {
+  padding: 6px 12px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent);
+  border-radius: var(--rounded-sm);
+  color: var(--accent);
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.debug-action-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.debug-log-container {
+  max-height: 400px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.debug-log-empty {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.debug-log-entry {
+  padding: 8px 16px;
+  border-bottom: 1px solid #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.debug-log-entry:last-child {
+  border-bottom: none;
+}
+
+.debug-log-entry.log-error {
+  background: rgba(231, 76, 60, 0.1);
+  color: #ff6b6b;
+}
+
+.debug-log-entry.log-warn {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f1c40f;
+}
+
+.debug-log-entry.log-info {
+  background: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+}
+
+.debug-log-entry.log-debug {
+  color: #95a5a6;
+}
+
+.debug-log-timestamp {
+  color: #7f8c8d;
+  font-size: 0.8em;
+  margin-right: 8px;
+}
+
+/* Conflict modal styling */
+.conflict-modal-content {
+  padding: 8px 0;
+}
+
+.conflict-message {
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.conflict-changes {
+  margin: 16px 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.conflict-changes li {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+  border-radius: 4px;
+}
+
+.conflict-warning {
+  padding: 12px 16px;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: var(--rounded-sm);
+  color: var(--danger);
+  font-size: 0.9em;
+}
+
+.conflict-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.changes-detail-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.changes-section {
+  margin-bottom: 24px;
+}
+
+.changes-section h4 {
+  margin: 0 0 16px 0;
+  color: var(--accent);
+  font-size: 1.1em;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 8px;
+}
+
+.changes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.change-item {
+  padding: 12px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--rounded-sm);
+}
+
+.change-item.modified {
+  border-left: 4px solid #ffc107;
+}
+
+.change-item.deleted {
+  border-left: 4px solid var(--danger);
+  opacity: 0.8;
+}
+
+.change-type {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.change-content {
+  margin-top: 8px;
+  color: var(--muted-text);
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.change-diff {
+  margin-top: 8px;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.change-before {
+  color: var(--danger);
+  background: rgba(220, 53, 69, 0.05);
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.change-before::before {
+  content: "- ";
+  font-weight: bold;
+}
+
+.change-after {
+  color: #28a745;
+  background: rgba(40, 167, 69, 0.05);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.change-after::before {
+  content: "+ ";
+  font-weight: bold;
+}

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Narrative Conversation</title>
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    // ユーザーの保存設定 or OS設定に基づき、できるだけ早くテーマ属性を設定してFOUCを防止
+    (function () {
+      try {
+        var stored = localStorage.getItem("nc-theme");
+        var theme = stored === "light" || stored === "dark"
+          ? stored
+          : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (_) {
+        // localStorage 不可時はOS設定にフォールバック
+        var theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./assets/css/main.css" />
+</head>
+
+<body>
+  <div id="app" class="app-shell">
+    <header class="app-header">
+      <div class="branding">
+        <span class="app-logo" aria-hidden="true">📖</span>
+        <div>
+          <h1 class="app-title">Narrative Conversation</h1>
+          <p class="app-subtitle">対話型ライトノベル・クリエイター</p>
+        </div>
+      </div>
+      <nav class="app-nav" aria-label="アプリケーションビュー">
+        <button class="nav-button" data-view-target="main">メイン</button>
+        <button class="nav-button" data-view-target="world">世界観</button>
+        <button class="nav-button" data-view-target="characters">登場人物</button>
+        <button class="nav-button" data-view-target="settings">設定</button>
+      </nav>
+      <button id="theme-toggle" class="nav-button" aria-label="テーマを切り替え">🌓 テーマ</button>
+    </header>
+
+    <main class="app-main" data-active-view="main" data-story-mode="timeline">
+      <section id="view-main" class="view" data-view="main" aria-label="メイン画面">
+        <div class="view-scroll">
+          <section class="panel command-panel" aria-labelledby="command-heading">
+            <div class="command-panel__body">
+              <h2 id="command-heading">司令</h2>
+              <div class="command-input-row">
+                <input id="command-input" class="command-input" type="text" aria-labelledby="command-heading"
+                  value="次の1タグ分のみ生成してください" placeholder="ここに物語生成の司令を入力してください" autocomplete="off" />
+                <button type="button" id="command-history-button" class="secondary small">履歴</button>
+              </div>
+              <span class="autosave-indicator" data-indicator="command">保存済み</span>
+            </div>
+          </section>
+
+          <section class="panel story-panel" aria-labelledby="story-heading">
+            <div class="panel-header">
+              <div>
+                <h2 id="story-heading">物語</h2>
+                <p class="panel-description">タイムライン形式で物語の履歴を表示します。エントリをクリックして編集・挿入・削除が可能です。</p>
+              </div>
+              <div class="story-controls">
+                <label class="story-select">
+                  <span>物語ファイル</span>
+                  <select id="story-selector" aria-label="物語ファイル選択"></select>
+                </label>
+                <div class="story-tablist" role="tablist" aria-label="物語ビュー切替">
+                  <button type="button" id="story-tab-timeline" class="story-tab is-active" data-story-tab="timeline"
+                    role="tab" aria-selected="true" aria-controls="story-timeline-panel">タイムライン</button>
+                  <button type="button" id="story-tab-management" class="story-tab" data-story-tab="management"
+                    role="tab" aria-selected="false" aria-controls="story-management-panel">管理</button>
+                </div>
+              </div>
+            </div>
+            <div class="story-view-panels" data-role="story-views" data-active="timeline">
+              <div id="story-timeline-panel" class="story-view story-view--timeline" data-story-view="timeline"
+                role="tabpanel" aria-labelledby="story-tab-timeline">
+                <div id="story-timeline" class="story-timeline" role="list"></div>
+              </div>
+              <div id="story-management-panel" class="story-view story-view--management" data-story-view="management"
+                role="tabpanel" aria-labelledby="story-tab-management" hidden>
+                <section class="management-section" aria-labelledby="story-create-heading">
+                  <h3 id="story-create-heading">新規の物語を作成</h3>
+                  <p class="management-description">空の物語ファイルを作成します。</p>
+                  <form id="story-create-form" class="management-form">
+                    <label class="text-label">
+                      <span>物語のタイトル</span>
+                      <input type="text" name="title" placeholder="ここに物語のタイトルを入力してください" required />
+                    </label>
+                    <label class="text-label">
+                      <span>説明 (任意)</span>
+                      <textarea name="description" rows="3" placeholder="ここに物語の概要を入力してください（任意）"></textarea>
+                    </label>
+                    <div class="management-actions">
+                      <button type="submit" class="secondary">作成する</button>
+                      <span class="management-status" data-role="create-status" aria-live="polite"></span>
+                    </div>
+                  </form>
+                </section>
+
+                <section class="management-section" aria-labelledby="story-summary-heading">
+                  <h3 id="story-summary-heading">要約して新しい物語を開始</h3>
+                  <p class="management-description">現在の物語を地の文で要約し、新しい物語ファイルとして保存します。</p>
+                  <form id="story-summary-form" class="management-form">
+                    <label class="text-label">
+                      <span>新しい物語のタイトル</span>
+                      <input type="text" name="title" placeholder="ここに新しい物語のタイトルを入力してください" required />
+                    </label>
+                    <label class="text-label">
+                      <span>説明 (任意)</span>
+                      <textarea name="description" rows="3" placeholder="ここに新しい物語の概要を入力してください（任意）"></textarea>
+                    </label>
+                    <div class="management-actions">
+                      <button type="submit" class="accent" id="story-summary-start-button">要約して新規開始</button>
+                      <span class="management-status" data-role="summary-status" aria-live="polite"></span>
+                    </div>
+                  </form>
+                </section>
+
+
+                <section class="management-section" aria-labelledby="story-export-heading">
+                  <h3 id="story-export-heading">エクスポート</h3>
+                  <p class="management-description">現在の物語をブログ等に貼り付けやすい形式で出力します。rejectは含まれません。</p>
+                  <div class="management-form">
+                    <label class="select-label">
+                      <span>出力形式</span>
+                      <select id="story-export-format">
+                        <option value="text">整形テキスト (人間向け)</option>
+                        <option value="xml">XMLライク (AI向け)</option>
+                      </select>
+                    </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="story-export-include-action-name" checked>
+                      <span>行動の前に名前を付ける</span>
+                    </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="story-export-include-dialogue-name" checked>
+                      <span>発言の前に名前を付ける</span>
+                    </label>
+                    <div class="management-actions">
+                      <button type="button" class="primary" id="story-export-generate-button">出力を生成</button>
+                      <button type="button" id="story-export-copy-button">クリップボードにコピー</button>
+                      <span class="management-status" data-role="export-status" aria-live="polite"></span>
+                    </div>
+                    <label class="text-label">
+                      <span>整形結果</span>
+                      <textarea id="story-export-text" rows="12" placeholder="ここに整形結果が表示されます"></textarea>
+                    </label>
+                  </div>
+                </section>
+
+
+                <section class="management-section" aria-labelledby="story-rename-heading">
+                  <h3 id="story-rename-heading">物語のリネーム</h3>
+                  <p class="management-description">物語のタイトルと説明を変更できます。</p>
+                  <form id="story-rename-form" class="management-form">
+                    <label class="select-label">
+                      <span>リネーム対象</span>
+                      <select id="story-rename-select" name="story-id" aria-label="リネーム対象の物語"></select>
+                    </label>
+                    <label class="text-label">
+                      <span>新しいタイトル</span>
+                      <input type="text" id="story-rename-title" name="title" placeholder="ここに新しいタイトルを入力してください"
+                        required />
+                    </label>
+                    <label class="text-label">
+                      <span>説明 (任意)</span>
+                      <textarea id="story-rename-description" name="description" rows="3"
+                        placeholder="ここに物語の概要を入力してください（任意）"></textarea>
+                    </label>
+                    <div class="management-actions">
+                      <button type="submit" class="primary" id="story-rename-button" disabled>リネーム</button>
+                      <span class="management-status" id="story-rename-status" data-role="rename-status"
+                        aria-live="polite"></span>
+                    </div>
+                  </form>
+                </section>
+
+                <section class="management-section" aria-labelledby="story-delete-heading">
+                  <h3 id="story-delete-heading">物語の削除</h3>
+                  <p class="management-description">削除する物語を選択してください。最低1つの物語は残す必要があります。</p>
+                  <div class="management-form">
+                    <label class="select-label">
+                      <span>削除対象</span>
+                      <select id="story-delete-select" aria-label="削除対象の物語"></select>
+                    </label>
+                    <div class="management-actions">
+                      <button type="button" class="danger" id="story-delete-button" disabled>選択した物語を削除</button>
+                      <span class="management-status" data-role="delete-status" aria-live="polite"></span>
+                    </div>
+                  </div>
+                </section>
+
+                <div class="story-management-grid">
+                  <section class="management-section" aria-labelledby="story-stats-heading">
+                    <h3 id="story-stats-heading">現在の物語の統計情報</h3>
+                    <p class="management-description">エントリ数や更新状況を確認できます。</p>
+                    <dl class="story-stats-list" data-role="story-stats"></dl>
+                  </section>
+
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <section class="entry-panel" aria-labelledby="entry-heading">
+          <div class="entry-panel__surface">
+            <h2 id="entry-heading" class="sr-only">入力エリア</h2>
+            <!-- デスクトップ用: 右上『続きを生成』ツールバー -->
+            <div class="desktop-entry-toolbar" aria-hidden="false">
+              <button type="button" id="generate-next-button-desktop" class="info">続きを生成</button>
+            </div>
+            <!-- モバイル用: 折りたたみトグルと『続きを生成』簡易バー -->
+            <div class="mobile-entry-toggle" data-role="mobile-entry-toggle">
+              <button type="button" id="mobile-entry-expand-toggle" class="secondary" aria-controls="entry-form"
+                aria-expanded="false">開く</button>
+              <div id="mobile-character-face" class="character-face" aria-hidden="true"></div>
+              <button type="button" id="generate-next-button-mobile" class="info">続きを生成</button>
+            </div>
+            <form id="entry-form" class="entry-form entry-form--compact">
+              <fieldset class="entry-type-fieldset">
+                <legend class="sr-only">エントリ種別</legend>
+                <label class="select-label">
+                  <span>種別</span>
+                  <select id="entry-type" name="type">
+                    <option value="character">キャラクター</option>
+                    <option value="narration">地の文</option>
+                    <option value="dice_direction">指示(ダイスロール)</option>
+                    <option value="direction">指示</option>
+                  </select>
+                </label>
+                <label class="select-label optional" data-role="character-picker">
+                  <span>キャラクター</span>
+                  <select id="entry-character" name="character"></select>
+                </label>
+                <div class="character-face" data-role="character-face" aria-hidden="true"></div>
+
+                <!-- ダイスロール用UI -->
+                <div class="dice-roll-section" data-role="dice-roll-section" style="display: none;">
+                  <label class="text-label">
+                    <span>ダイス記法 (例: 1d6, 2d10)</span>
+                    <div class="dice-input-group">
+                      <input type="text" id="dice-notation" name="diceNotation" value="1d6" />
+                      <button type="button" id="roll-dice-button" class="secondary">ロール</button>
+                    </div>
+                  </label>
+                  <div id="dice-result" class="dice-result" style="display: none;"></div>
+                </div>
+              </fieldset>
+
+              <label class="text-label entry-text-label">
+                <span>本文</span>
+                <textarea id="entry-content" name="content" rows="3" required
+                  placeholder="ここにエントリの本文を入力してください"></textarea>
+              </label>
+
+              <div class="entry-actions entry-actions--compact">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="entry-generate-toggle" />
+                  <span>追加と同時に続きも生成する</span>
+                </label>
+                <!-- 通常のエントリ追加ボタン（非キャラクター用） -->
+                <div class="entry-buttons" id="normal-entry-buttons">
+                  <button type="submit" id="add-entry-button" class="primary">エントリを追加</button>
+                </div>
+                <!-- キャラクター選択時の発言・行動ボタン -->
+                <div class="entry-buttons character-action-buttons" data-role="character-actions"
+                  style="display: none;">
+                  <button type="button" id="add-dialogue-button" class="primary character-action-btn">発言追加</button>
+                  <button type="button" id="add-action-button" class="primary character-action-btn">行動追加</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-world" class="view" data-view="world" aria-label="世界観設定">
+        <div class="view-scroll">
+          <section class="panel" aria-labelledby="world-heading">
+            <div class="panel-header">
+              <h2 id="world-heading">世界観設定</h2>
+              <span class="autosave-indicator" data-indicator="worldView">保存済み</span>
+            </div>
+            <p class="panel-description">世界観の説明をplain textで編集します。編集と同時に保存されます。</p>
+            <div class="worldview-input-row">
+              <button type="button" id="worldview-history-button" class="secondary small">履歴</button>
+            </div>
+            <textarea id="worldview-textarea" class="worldview-input" placeholder="ここに世界観の概要を記述してください"></textarea>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-characters" class="view" data-view="characters" aria-label="キャラクター管理">
+        <div class="view-scroll">
+          <section class="panel" aria-labelledby="characters-heading">
+            <div class="panel-header">
+              <div>
+                <h2 id="characters-heading">キャラクター</h2>
+                <p class="panel-description">一覧からキャラクターを選択し、詳細を編集します。変更は自動保存されます。</p>
+              </div>
+              <button id="create-character-button" class="primary">新規追加</button>
+            </div>
+            <div class="character-layout">
+              <aside class="character-list" aria-label="キャラクター一覧">
+                <ul id="character-list" class="character-items" role="list"></ul>
+              </aside>
+              <section class="character-detail" aria-live="polite">
+                <div class="character-empty" data-state="empty">
+                  <p>キャラクターを選択すると詳細を表示します。</p>
+                </div>
+                <form id="character-form" class="character-form" hidden>
+                  <div class="character-form-header">
+                    <h3>キャラクター詳細</h3>
+                    <button type="button" id="delete-character-button" class="danger">削除</button>
+                  </div>
+                  <label class="text-label">
+                    <span>名前</span>
+                    <input type="text" id="character-name" name="name" required />
+                  </label>
+                  <label class="text-label">
+                    <span>設定</span>
+                    <textarea id="character-description" name="description" rows="8"
+                      placeholder="ここにキャラクターの背景や性格などを入力してください"></textarea>
+                  </label>
+                  <div class="form-section">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="character-enabled" checked />
+                      <span>このキャラクターを有効にする<br><small>注意:
+                          物語の途中で無効や削除にしてもAIは履歴からキャラクターを推定してしまい、むしろキャラ崩壊の原因になることがあります。確実に反映させるには新しい物語を作成してください。</small></span>
+                    </label>
+                  </div>
+                  <div class="form-section">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="character-stop-on-generate" />
+                      <span>このキャラクターをAIが生成しようとしたら強制停止する<br><small>出力に name="キャラ名"
+                          が現れた時点で生成を強制停止します。プロンプトで指定しても生成しようとする際の最終手段です。</small></span>
+                    </label>
+                  </div>
+                  <div class="character-icon-input">
+                    <div class="icon-preview" aria-label="アイコンプレビュー">
+                      <img id="character-icon-preview" alt="キャラクターアイコン" />
+                    </div>
+                    <label class="file-label">
+                      <span>アイコン画像 (PNG/JPEG)</span>
+                      <input type="file" id="character-icon" accept="image/png, image/jpeg" />
+                    </label>
+                    <button type="button" id="clear-icon-button" class="secondary">アイコンをクリア</button>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view" data-view="settings" aria-label="アプリケーション設定">
+        <div class="view-scroll">
+          <section class="panel" aria-labelledby="settings-heading">
+            <div class="panel-header">
+              <div>
+                <h2 id="settings-heading">API設定 <span class="autosave-indicator" data-indicator="settings">保存済み</span>
+                </h2>
+              </div>
+              <button type="button" id="open-manual-button" class="secondary">説明書を開く</button>
+            </div>
+            <p class="panel-description">OpenAI互換APIの接続設定を編集します。変更は自動保存されます。</p>
+            <form id="settings-form" class="settings-form">
+              <label class="text-label">
+                <span>Base URL</span>
+                <input type="url" id="settings-base-url" name="baseUrl"
+                  placeholder="ここにAPIのBase URLを入力してください（例: https://openrouter.ai/api/v1）" />
+              </label>
+              <label class="text-label">
+                <span>APIキー <small class="label-hint">(<a href="https://openrouter.ai/settings/keys" target="_blank"
+                      rel="noopener">OpenRouter</a>)</small></span>
+                <div class="dice-input-group">
+                  <input type="password" id="settings-api-key" name="apiKey" autocomplete="off" />
+                  <button type="button" id="test-settings-button" class="accent">接続テスト</button>
+                </div>
+              </label>
+              <div id="settings-test-result" class="test-result" aria-live="polite">ここに接続テスト結果が表示されます</div>
+              <label class="text-label">
+                <span>モデル名</span>
+                <input type="text" id="settings-model" name="model" placeholder="ここにモデル名を入力してください（例: openai/gpt-5）" />
+              </label>
+
+              <div class="cost-grid">
+                <label class="text-label">
+                  <span>入力トークン単価 ($/M)</span>
+                  <input type="number" id="settings-input-cost" name="inputTokenCost" min="0" step="0.01"
+                    placeholder="ここに入力トークンの単価($/M input tokens)を入力してください（例: 0.40）" />
+                </label>
+                <label class="text-label">
+                  <span>出力トークン単価 ($/M)</span>
+                  <input type="number" id="settings-output-cost" name="outputTokenCost" min="0" step="0.01"
+                    placeholder="ここに出力トークンの単価($/M output tokens)を入力してください（例: 1.60）" />
+                </label>
+              </div>
+
+              <div class="text-label">
+                <span>役割設定(システムプロンプトの先頭部) <button type="button" id="roleprompt-history-button"
+                    class="secondary small">履歴</button></span>
+                <textarea id="settings-role-prompt" name="rolePrompt"
+                  placeholder="AIの役割を設定してください（例: あなたは物語を作成するライトノベル作家です。）TRPGのGMとかにもできます。" rows="2"></textarea>
+              </div>
+              <div class="form-section">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="settings-enable-animation" name="enableAnimation" />
+                  <span>アニメーションを有効にする（文字送り・待機）</span>
+                </label>
+              </div>
+
+              <div class="form-section">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="settings-hide-avatars" name="hideAvatars" />
+                  <span>キャラクターアイコンを非表示にする</span>
+                </label>
+              </div>
+
+              <div class="form-section">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="settings-skip-preconfirm" name="skipPreGenerationConfirm" />
+                  <span>生成前の確認画面をスキップする</span>
+                </label>
+              </div>
+
+              <details class="advanced-settings" id="advanced-settings">
+                <summary>応用的な設定</summary>
+                <div class="advanced-settings__content">
+                  <!-- アニメーション設定 -->
+                  <div class="cost-grid">
+                    <label class="text-label">
+                      <span>文字送り速度（秒/文字）</span>
+                      <input type="number" id="settings-typing-interval" name="typingIntervalSeconds" min="0"
+                        step="0.01" placeholder="例: 0.03" />
+                    </label>
+                    <label class="text-label">
+                      <span>待機時間（秒）</span>
+                      <input type="number" id="settings-wait-seconds" name="waitSeconds" min="0" step="0.1"
+                        placeholder="例: 0.5" />
+                    </label>
+                  </div>
+
+                  <label class="range-label">
+                    <span>temperature: <output id="temperature-output">0.7</output></span>
+                    <input type="range" id="settings-temperature" name="temperature" min="0" max="2" step="0.1"
+                      value="0.7" />
+                  </label>
+
+                  <label class="text-label">
+                    <span>最大トークン長(Max Tokens)</span>
+                    <input type="number" id="settings-max-tokens" name="maxTokens" min="1" step="1"
+                      placeholder="例: 512" />
+                  </label>
+
+                  <label class="text-label">
+                    <span>通信タイムアウト（秒）</span>
+                    <input type="number" id="settings-network-timeout" name="networkTimeoutSeconds" min="0" step="0.1"
+                      placeholder="例: 60" />
+                  </label>
+
+                  <div class="text-label">
+                    <span>要約設定(システムプロンプト)</span>
+                    <textarea id="settings-summary-prompt" name="summaryPrompt"
+                      placeholder="要約機能で使用するシステムプロンプトを設定してください" rows="4"></textarea>
+                  </div>
+
+                  <div class="text-label">
+                    <span>JSON定義</span>
+                    <textarea id="settings-json-definition" name="jsonDefinition"
+                      placeholder="ここに連動ツールから提供されるJSON仕様を入れてください" rows="6"></textarea>
+                  </div>
+                  <label class="text-label">
+                    <span>Outgoing Webhook URL</span>
+                    <input type="url" id="settings-webhook-url" name="webhookUrl"
+                      placeholder="任意のWebhook受信URLを入力（例: https://example.com/webhook）" />
+                  </label>
+                  <div class="form-section">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="settings-enable-incoming-webhook" name="enableIncomingWebhook" />
+                      <span>Incoming Webhookを有効にする<br><small>外部サービスなどからこのアプリへのIncoming
+                          Webhook連携を使用する場合にオンにします。</small></span>
+                    </label>
+                  </div>
+                  <div class="form-section">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="debug-mode-checkbox" />
+                      <span>デバッグモード（詳細なエラー情報を表示）</span>
+                    </label>
+                  </div>
+                </div>
+              </details>
+            </form>
+
+
+            <!-- デバッグコンソール -->
+            <div id="debug-console" class="debug-console" style="display: none;">
+              <div class="debug-console-header">
+                <h3>デバッグコンソール</h3>
+                <div class="debug-console-actions">
+                  <button type="button" id="clear-debug-log" class="debug-action-btn">クリア</button>
+                  <button type="button" id="export-debug-log" class="debug-action-btn">エクスポート</button>
+                </div>
+              </div>
+              <div id="debug-log-container" class="debug-log-container">
+                <div class="debug-log-empty">デバッグログがここに表示されます</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer" aria-live="polite">
+      <div class="footer-stat">
+        <span>最終生成トークン数:</span>
+        <strong id="footer-tokens">-</strong>
+      </div>
+      <div class="footer-stat">
+        <span>直前の生成のレスポンス時間:</span>
+        <strong id="footer-latency">-</strong>
+      </div>
+      <div class="footer-stat">
+        <span>直前の生成の概算費用:</span>
+        <strong id="footer-cost">-</strong>
+      </div>
+      <div class="footer-stat">
+        <span>ステータス:</span>
+        <strong id="footer-status">待機中</strong>
+      </div>
+    </footer>
+  </div>
+
+  <div id="modal-root" aria-live="polite"></div>
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- 生成中オーバーレイ -->
+  <div id="generation-overlay" class="generation-overlay" aria-live="polite">
+    <div class="generation-content">
+      <div class="generation-spinner"></div>
+      <div class="generation-text">物語を生成しています…</div>
+      <div class="generation-subtext">AIが物語の続きを考えています</div>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+
+</html>
