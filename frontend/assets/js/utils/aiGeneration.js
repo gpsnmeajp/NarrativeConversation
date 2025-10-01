@@ -105,6 +105,8 @@ function parseGeneratedContent(text) {
   try {
     // パース前サニタイズ（終了タグの部分欠損を補正）
     text = sanitizeXmlBeforeParse(text);
+    // thinkタグを除去（解析の邪魔になるため）
+    text = text.replace(/<think(\s[^>]*)?>.*?<\/think>/gs, '');
     // XMLタグのみを抽出する正規表現（開始タグから閉じタグまで、閉じタグは先頭一文字一致で修正）
     const xmlTagPattern = /<(\w+)(\s[^>]*)?>(.*?)<\/(\w*)>/gs;
     const xmlTags = [];
@@ -166,10 +168,6 @@ function parseGeneratedContent(text) {
     Array.from(doc.documentElement.children).forEach((node) => {
       const content = node.textContent?.trim() ?? "";
       if (!content) return;
-      // thinkタグは物語タイムラインに含めない（スキップ）
-      if (node.nodeName === "think") {
-        return;
-      }
       const name = node.getAttribute("name");
       const entry = {
         id: generateUUID(),
