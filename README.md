@@ -71,6 +71,8 @@ pip install -r requirements.txt
 python run_server.py --reload
 ```
 
+`http://127.0.0.1:8000` を開いてください。
+
 ## LICENSE
 MIT License
 
