@@ -63,7 +63,6 @@ ${jsonFormatSection ? jsonFormatSection + "\n" : ""}
 <action name="アリス">アリスは驚いて後ずさりした。</action>
 <dialogue name="アリス">(そ、そんな...キャロルが...！？)  そんなこと、信じられないわ！</dialogue>
 <dialogue name="ボブ">ああ、僕も信じたくない。でも、これが現実なんだ。</dialogue>
-<reject>処理を継続できませんでした</reject>
 
 `;
 }

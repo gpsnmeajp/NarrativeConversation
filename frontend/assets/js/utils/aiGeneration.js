@@ -166,6 +166,10 @@ function parseGeneratedContent(text) {
     Array.from(doc.documentElement.children).forEach((node) => {
       const content = node.textContent?.trim() ?? "";
       if (!content) return;
+      // thinkタグは物語タイムラインに含めない（スキップ）
+      if (node.nodeName === "think") {
+        return;
+      }
       const name = node.getAttribute("name");
       const entry = {
         id: generateUUID(),
