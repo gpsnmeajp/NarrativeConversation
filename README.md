@@ -58,10 +58,13 @@ AIを使って、物語を作ったり、なりきって会話したり、指示
 その他OpenAI互換のエンドポイントを提供するLLMプロバイダであれば動作する見込みです。  
 例えば
 
-+ Geminiは `https://generativelanguage.googleapis.com/v1beta/openai/`
++ ~~Geminiは `https://generativelanguage.googleapis.com/v1beta/openai/`~~
 + Claudeは `https://api.anthropic.com/v1/`
 
 など。(ただし未検証です。OpenRouterの使用を強く推奨します。)
+
+※Gemini APIは、引数が非互換のため現在利用できません。(400エラーになる)  将来的に修正を検討します。  
+( `frontend\assets\js\utils\aiGeneration.js`の`transforms: [],`をコメントアウトすることで利用できます。ただし、副作用としてOpenRouterではトークン超過警告が出ずに勝手にトークンを切り捨てるようになります。)
 
 なお、OpenAI互換のAPIが提供されないLLMプロバイダ(例えばAmazon Bedrock等)の場合、LiteLLM ProxyのようなOpenAI互換APIを提供するプロキシを間に挟むことで動作する可能性があります。
 
